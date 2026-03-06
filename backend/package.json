@@ -1,0 +1,1 @@
+{\n  "name": "win-the-day-ai",\n  "version": "1.0.0",\n  "description": "A basic Node.js application",\n  "main": "src/index.js",\n  "scripts": {\n    "start": "node src/index.js"\n  },\n  "author": "Abhishekshukla91490",\n  "license": "MIT"\n}
