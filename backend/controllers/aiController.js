@@ -1,5 +1,5 @@
 const Groq = require("groq-sdk");
-const supabase = require("../config/supabase");
+const { supabase } = require("../config/supabase");
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,

@@ -1,4 +1,4 @@
-const supabase = require("../config/supabase");
+const { supabase } = require("../config/supabase");
 
 const createTask = async (req, res) => {
   const { title, description, category, due_date } = req.body;

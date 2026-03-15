@@ -1,4 +1,4 @@
-const supabase = require("../config/supabase");
+const { supabase } = require("../config/supabase");
 
 const createPlan = async (req, res) => {
   const { ai_generated_plan, plan_date } = req.body;

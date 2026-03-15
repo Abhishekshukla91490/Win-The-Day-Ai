@@ -1,4 +1,4 @@
-const supabase = require("../config/supabase");
+const { supabase } = require("../config/supabase");
 
 const signup = async (req, res) => {
   const { email, password, full_name } = req.body;

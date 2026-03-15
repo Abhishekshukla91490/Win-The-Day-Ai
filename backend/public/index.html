@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Win The Day</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #0f0f0f; color: #fff; }
+
+    .navbar { background: #111; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; position: sticky; top: 0; z-index: 100; }
+    .logo { font-size: 1.4rem; font-weight: 700; color: #f59e0b; }
+    .nav-right { display: flex; gap: 10px; align-items: center; }
+    .nav-btn { background: #f59e0b; color: #000; padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .nav-btn-outline { background: transparent; color: #f59e0b; padding: 8px 16px; border: 1px solid #f59e0b; border-radius: 8px; cursor: pointer; font-weight: 600; }
+
+    .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+
+    .auth-box { background: #111; border: 1px solid #222; border-radius: 16px; padding: 2rem; max-width: 400px; margin: 3rem auto; }
+    .auth-box h2 { margin-bottom: 1.5rem; color: #f59e0b; }
+    input, textarea, select { width: 100%; padding: 10px 14px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: #fff; margin-bottom: 1rem; font-size: 14px; }
+    textarea { resize: none; height: 80px; }
+    button { padding: 12px; background: #f59e0b; color: #000; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 15px; }
+    .switch-link { text-align: center; margin-top: 1rem; color: #888; font-size: 13px; cursor: pointer; }
+    .switch-link span { color: #f59e0b; }
+
+    .dashboard { display: none; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+    .stat-card { background: #111; border: 1px solid #222; border-radius: 12px; padding: 1.2rem; text-align: center; }
+    .stat-value { font-size: 2rem; font-weight: 700; color: #f59e0b; }
+    .stat-label { font-size: 12px; color: #888; margin-top: 4px; }
+
+    .section { background: #111; border: 1px solid #222; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .section h3 { color: #f59e0b; margin-bottom: 1rem; }
+
+    .task-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #1a1a1a; gap: 10px; }
+    .task-info { flex: 1; }
+    .task-title { font-size: 14px; font-weight: 500; }
+    .task-category { font-size: 11px; color: #888; margin-top: 2px; }
+    .task-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+    .task-status { font-size: 12px; padding: 3px 10px; border-radius: 99px; }
+    .status-completed { background: #052e16; color: #4ade80; }
+    .status-pending { background: #2d1b00; color: #f59e0b; }
+    .btn-sm { font-size: 12px; padding: 5px 12px; border-radius: 6px; cursor: pointer; border: none; font-weight: 600; }
+    .btn-verify { background: #1d4ed8; color: #fff; }
+
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; justify-content: center; align-items: center; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: #111; border: 1px solid #333; border-radius: 16px; padding: 2rem; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+    .modal h3 { color: #f59e0b; margin-bottom: 1rem; }
+    .modal-task-title { font-size: 13px; color: #888; margin-bottom: 1rem; padding: 8px 12px; background: #1a1a1a; border-radius: 8px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 1rem; }
+    .btn-cancel { background: #1a1a1a; color: #888; border: 1px solid #333; }
+    .btn-submit { background: #f59e0b; color: #000; flex: 1; }
+
+    .coming-soon-box { background: #1a1a1a; border: 1px dashed #333; border-radius: 8px; padding: 12px; text-align: center; margin-bottom: 1rem; }
+
+    .notif-item { padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; font-size: 14px; }
+    .notif-warning { background: #2d1b00; border-left: 3px solid #f59e0b; }
+    .notif-success { background: #052e16; border-left: 3px solid #4ade80; }
+    .notif-danger { background: #2d0000; border-left: 3px solid #ef4444; }
+    .notif-info { background: #001d3d; border-left: 3px solid #3b82f6; }
+
+    .lb-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #1a1a1a; }
+    .lb-rank { font-size: 1.2rem; width: 30px; }
+    .lb-info { flex: 1; padding-left: 10px; }
+    .lb-score { color: #f59e0b; font-weight: 700; }
+
+    .action-row { display: flex; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap; }
+    .btn-action { font-size: 13px; padding: 8px 16px; border-radius: 8px; cursor: pointer; border: none; font-weight: 600; }
+    .btn-score { background: #1d4ed8; color: #fff; }
+    .btn-streak { background: #b45309; color: #fff; }
+    .btn-generate { background: #1a1a1a; border: 1px solid #f59e0b; color: #f59e0b; }
+
+    .quiz-question { margin-bottom: 12px; }
+    .quiz-question p { font-size: 13px; color: #ccc; margin-bottom: 4px; }
+    .quiz-question input { margin-bottom: 0; }
+
+    .error-msg { color: #ef4444; font-size: 13px; margin-top: 8px; text-align: center; }
+    .toast { position: fixed; bottom: 2rem; right: 2rem; background: #111; border: 1px solid #333; border-radius: 12px; padding: 1rem 1.5rem; font-size: 14px; z-index: 9999; display: none; max-width: 300px; }
+    .toast.show { display: block; }
+    .toast.success { border-color: #4ade80; color: #4ade80; }
+    .toast.error { border-color: #ef4444; color: #ef4444; }
+    .toast.info { border-color: #3b82f6; color: #3b82f6; }
+  </style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- PROOF MODAL -->
+<div class="modal-overlay" id="proofModal">
+  <div class="modal">
+    <h3>✅ Task Verify Karo</h3>
+    <div class="modal-task-title" id="modalTaskTitle"></div>
+    <input type="hidden" id="modalTaskId"/>
+
+    <textarea id="proofText" placeholder="Kya kiya? Detail mein likho..."></textarea>
+
+    <div id="quizSection" style="display:none">
+      <p style="color:#f59e0b; font-size:13px; margin-bottom:10px;">🤖 AI ke kuch sawaal — jawab do:</p>
+      <div id="quizQuestions"></div>
+    </div>
+
+    <div class="coming-soon-box">
+      <p style="color:#888; font-size:13px;">📸 Screenshot Verification</p>
+      <p style="color:#f59e0b; font-size:12px; margin-top:4px;">🚀 Coming Soon</p>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-sm btn-cancel" style="width:auto; padding:10px 20px;" onclick="closeModal()">Cancel</button>
+      <button class="btn-submit" id="verifyBtn" onclick="handleVerify()">🤖 Verify Karo</button>
+    </div>
+    <div id="proofResult" style="margin-top:10px; font-size:13px;"></div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<div class="navbar">
+  <div class="logo">🏆 Win The Day</div>
+  <div class="nav-right">
+    <button class="nav-btn-outline" id="updateScoreBtn" style="display:none" onclick="updateScore()">📊 Score Update</button>
+    <button class="nav-btn-outline" id="updateStreakBtn" style="display:none" onclick="updateStreak()">🔥 Streak Update</button>
+    <button class="nav-btn" id="logoutBtn" style="display:none" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<!-- AUTH -->
+<div id="authSection">
+  <div class="auth-box">
+    <h2 id="authTitle">Login</h2>
+    <input type="text" id="fullName" placeholder="Full Name" style="display:none" autocomplete="name"/>
+    <input type="email" id="email" placeholder="Email" autocomplete="email"/>
+    <input type="password" id="password" placeholder="Password" autocomplete="current-password"/>
+    <button style="width:100%" onclick="handleAuth()">Submit</button>
+    <div class="error-msg" id="authError"></div>
+    <div class="switch-link" onclick="toggleAuth()">
+      Naya account? <span id="switchText">Signup karo</span>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard container" id="dashboard">
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value" id="statScore">0%</div>
+      <div class="stat-label">Aaj ka Score</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statStreak">0</div>
+      <div class="stat-label">🔥 Streak</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statTasks">0/0</div>
+      <div class="stat-label">Tasks Done</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statProofs">0</div>
+      <div class="stat-label">Proofs Submitted</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>🤖 AI Plan Generator</h3>
+    <textarea id="goalsInput" placeholder="Aaj ke goals likho... (e.g. backend complete karna, video banana)"></textarea>
+    <div class="action-row">
+      <button class="btn-action btn-generate" onclick="generatePlan()">⚡ Plan Generate Karo</button>
+    </div>
+    <div id="planResult"></div>
+  </div>
+
+  <div class="section">
+    <h3>📋 Aaj ke Tasks</h3>
+    <div class="action-row">
+      <button class="btn-action btn-score" onclick="updateScore()">📊 Score Update Karo</button>
+      <button class="btn-action btn-streak" onclick="updateStreak()">🔥 Streak Update Karo</button>
+    </div>
+    <div id="tasksList">Loading...</div>
+  </div>
+
+  <div class="section">
+    <h3>🔔 Notifications</h3>
+    <div id="notifList">Loading...</div>
+  </div>
+
+  <div class="section">
+    <h3>🏆 Leaderboard</h3>
+    <div id="leaderboardList">Loading...</div>
+  </div>
+
+</div>
+
+<script>
+  const API = '';
+  let token = localStorage.getItem('wtd_token');
+  let isLogin = true;
+  let currentQuizQuestions = [];
+  let isSimpleTaskFlag = false;
+
+  if (token) showDashboard();
+
+  function showToast(msg, type = 'info') {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = `toast show ${type}`;
+    setTimeout(() => t.className = 'toast', 3000);
+  }
+
+  function toggleAuth() {
+    isLogin = !isLogin;
+    document.getElementById('authTitle').textContent = isLogin ? 'Login' : 'Signup';
+    document.getElementById('switchText').textContent = isLogin ? 'Signup karo' : 'Login karo';
+    document.getElementById('fullName').style.display = isLogin ? 'none' : 'block';
+    document.getElementById('authError').textContent = '';
+  }
+
+  async function handleAuth() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const full_name = document.getElementById('fullName').value;
+    const url = isLogin ? `${API}/api/auth/login` : `${API}/api/auth/signup`;
+    const body = isLogin ? { email, password } : { email, password, full_name };
+
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!res.ok) { document.getElementById('authError').textContent = data.error; return; }
+      if (isLogin) {
+        token = data.token;
+        localStorage.setItem('wtd_token', token);
+        showDashboard();
+      } else {
+        document.getElementById('authError').style.color = '#4ade80';
+        document.getElementById('authError').textContent = 'Signup successful! Email verify karo phir login karo.';
+      }
+    } catch (e) {
+      document.getElementById('authError').textContent = 'Server se connect nahi hua!';
+    }
+  }
+
+  function showDashboard() {
+    document.getElementById('authSection').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('logoutBtn').style.display = 'block';
+    document.getElementById('updateScoreBtn').style.display = 'block';
+    document.getElementById('updateStreakBtn').style.display = 'block';
+    loadDashboard();
+  }
+
+  function logout() {
+    localStorage.removeItem('wtd_token');
+    token = null;
+    location.reload();
+  }
+
+  async function apiCall(endpoint, method = 'GET', body = null) {
+    const opts = {
+      method,
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+    };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(`${API}${endpoint}`, opts);
+    return res.json();
+  }
+
+  async function loadDashboard() {
+    const progress = await apiCall('/api/progress');
+    if (progress.dashboard) {
+      const d = progress.dashboard;
+      document.getElementById('statScore').textContent = d.today.score_percent + '%';
+      document.getElementById('statStreak').textContent = d.streak.current + ' 🔥';
+      document.getElementById('statTasks').textContent = `${d.today.tasks_completed}/${d.today.tasks_total}`;
+      document.getElementById('statProofs').textContent = d.today.proofs_submitted;
+    }
+
+    const tasks = await apiCall('/api/tasks');
+    if (tasks.tasks) {
+      const today = new Date().toISOString().split('T')[0];
+      const todayTasks = tasks.tasks.filter(t => t.due_date === today);
+      document.getElementById('tasksList').innerHTML = todayTasks.length === 0
+        ? '<p style="color:#888">Koi task nahi aaj ka — AI se generate karo!</p>'
+        : todayTasks.map(t => `
+          <div class="task-item">
+            <div class="task-info">
+              <div class="task-title">${t.title}</div>
+              <div class="task-category">${t.category || 'General'}</div>
+            </div>
+            <div class="task-actions">
+              <span class="task-status ${t.status === 'completed' ? 'status-completed' : 'status-pending'}">
+                ${t.status === 'completed' ? '✅ Done' : '⏳ Pending'}
+              </span>
+              ${t.status !== 'completed' ? `
+                <button class="btn-sm btn-verify" onclick="openProofModal('${t.id}', '${t.title.replace(/'/g, "\\'")}')">
+                  ✅ Verify
+                </button>` : ''}
+            </div>
+          </div>`).join('');
+    }
+
+    const notifs = await apiCall('/api/notifications');
+    if (notifs.notifications) {
+      document.getElementById('notifList').innerHTML = notifs.notifications.length === 0
+        ? '<p style="color:#888">Koi notification nahi!</p>'
+        : notifs.notifications.map(n => `
+          <div class="notif-item notif-${n.type}">
+            <strong>${n.title}</strong><br/>${n.message}
+          </div>`).join('');
+    }
+
+    const lb = await apiCall('/api/leaderboard');
+    if (lb.leaderboard) {
+      const ranks = ['🥇', '🥈', '🥉'];
+      document.getElementById('leaderboardList').innerHTML = lb.leaderboard.weekly_top.length === 0
+        ? '<p style="color:#888">Koi data nahi abhi!</p>'
+        : lb.leaderboard.weekly_top.map((u, i) => `
+          <div class="lb-item">
+            <span class="lb-rank">${ranks[i] || (i + 1)}</span>
+            <div class="lb-info">
+              <div style="font-size:13px">User ${u.user_id.slice(0, 8)}...</div>
+              <div style="font-size:11px; color:#888">${u.days_active} din active</div>
+            </div>
+            <span class="lb-score">${u.avg_score}%</span>
+          </div>`).join('');
+    }
+  }
+
+  async function openProofModal(taskId, taskTitle) {
+    document.getElementById('modalTaskId').value = taskId;
+    document.getElementById('modalTaskTitle').textContent = '📋 Task: ' + taskTitle;
+    document.getElementById('proofText').value = '';
+    document.getElementById('proofResult').textContent = '';
+    document.getElementById('quizSection').style.display = 'none';
+    document.getElementById('quizQuestions').innerHTML = '';
+    currentQuizQuestions = [];
+    isSimpleTaskFlag = false;
+    document.getElementById('proofModal').classList.add('active');
+
+    document.getElementById('proofResult').textContent = '⏳ AI quiz prepare kar raha hai...';
+    document.getElementById('proofResult').style.color = '#888';
+
+    const data = await apiCall('/api/proofs/generate-quiz', 'POST', { task_id: taskId });
+    document.getElementById('proofResult').textContent = '';
+
+    if (data.questions) {
+      isSimpleTaskFlag = data.is_simple;
+      if (!data.is_simple && data.questions.length > 0) {
+        currentQuizQuestions = data.questions;
+        document.getElementById('quizSection').style.display = 'block';
+        document.getElementById('quizQuestions').innerHTML = data.questions.map((q, i) => `
+          <div class="quiz-question">
+            <p>${i + 1}. ${q}</p>
+            <input type="text" id="quiz_${i}" placeholder="Jawab likho..."/>
+          </div>
+        `).join('');
+      } else {
+        document.getElementById('quizSection').style.display = 'none';
+      }
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('proofModal').classList.remove('active');
+  }
+
+  async function handleVerify() {
+    const task_id = document.getElementById('modalTaskId').value;
+    const proof_text = document.getElementById('proofText').value;
+
+    if (!proof_text) { showToast('Kya kiya likho!', 'error'); return; }
+
+    let quiz_answers = [];
+    if (!isSimpleTaskFlag && currentQuizQuestions.length > 0) {
+      quiz_answers = currentQuizQuestions.map((q, i) => ({
+        question: q,
+        answer: document.getElementById(`quiz_${i}`)?.value || ''
+      }));
+      if (quiz_answers.some(qa => !qa.answer)) {
+        showToast('Saare sawaalon ke jawab do!', 'error'); return;
+      }
+    }
+
+    document.getElementById('proofResult').textContent = '🤖 AI verify kar raha hai...';
+    document.getElementById('proofResult').style.color = '#888';
+
+    const data = await apiCall('/api/proofs', 'POST', { task_id, proof_text, quiz_answers });
+
+    if (data.proof) {
+      if (data.ai_result.verified) {
+        document.getElementById('proofResult').style.color = '#4ade80';
+        document.getElementById('proofResult').textContent = `✅ Verified! Score: ${data.ai_result.score}/100 — ${data.ai_result.feedback}`;
+        showToast('Task verified! ✅', 'success');
+        setTimeout(() => { closeModal(); loadDashboard(); }, 2500);
+      } else {
+        document.getElementById('proofResult').style.color = '#ef4444';
+        document.getElementById('proofResult').textContent = `❌ ${data.ai_result.feedback}`;
+        showToast('Proof rejected!', 'error');
+      }
+    } else {
+      document.getElementById('proofResult').textContent = data.error || 'Kuch galat hua!';
+      document.getElementById('proofResult').style.color = '#ef4444';
+    }
+  }
+
+  async function updateScore() {
+    const data = await apiCall('/api/scores/update', 'POST');
+    if (data.score) {
+      showToast(`Score updated: ${data.score.score_percent}% 📊`, 'success');
+      loadDashboard();
+    } else {
+      showToast(data.error || 'Score update nahi hua', 'error');
+    }
+  }
+
+  async function updateStreak() {
+    const data = await apiCall('/api/streaks/update', 'POST');
+    if (data.streak) {
+      showToast(`🔥 ${data.streak.current_streak} din ki streak!`, 'success');
+      loadDashboard();
+    } else {
+      showToast(data.error || 'Streak update nahi hui', 'error');
+    }
+  }
+
+  async function generatePlan() {
+    const goals = document.getElementById('goalsInput').value;
+    if (!goals) { showToast('Goals likho pehle!', 'error'); return; }
+
+    document.getElementById('planResult').innerHTML = '<p style="color:#888">⏳ AI plan bana raha hai...</p>';
+
+    const data = await apiCall('/api/ai/generate-plan', 'POST', { goals, available_hours: 3 });
+
+    if (data.ai_plan) {
+      document.getElementById('planResult').innerHTML = `
+        <p style="color:#4ade80; margin-bottom:8px">✅ Plan ready! ${data.tasks.length} tasks create ho gaye.</p>
+        <p style="color:#888; font-size:13px">${data.ai_plan.plan_summary}</p>`;
+      showToast('Plan generated! 🤖', 'success');
+      loadDashboard();
+    } else {
+      document.getElementById('planResult').innerHTML = `<p style="color:#ef4444">${data.error}</p>`;
+    }
+  }
+</script>
+
+</body>
+</html>
