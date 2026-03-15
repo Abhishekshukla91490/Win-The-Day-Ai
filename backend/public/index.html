@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Win The Day</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#f59e0b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Win The Day">
+  <link rel="apple-touch-icon" href="/icon-192.png">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', sans-serif; background: #0f0f0f; color: #fff; }
@@ -94,19 +100,15 @@
     <h3>✅ Task Verify Karo</h3>
     <div class="modal-task-title" id="modalTaskTitle"></div>
     <input type="hidden" id="modalTaskId"/>
-
     <textarea id="proofText" placeholder="Kya kiya? Detail mein likho..."></textarea>
-
     <div id="quizSection" style="display:none">
       <p style="color:#f59e0b; font-size:13px; margin-bottom:10px;">🤖 AI ke kuch sawaal — jawab do:</p>
       <div id="quizQuestions"></div>
     </div>
-
     <div class="coming-soon-box">
       <p style="color:#888; font-size:13px;">📸 Screenshot Verification</p>
       <p style="color:#f59e0b; font-size:12px; margin-top:4px;">🚀 Coming Soon</p>
     </div>
-
     <div class="modal-actions">
       <button class="btn-sm btn-cancel" style="width:auto; padding:10px 20px;" onclick="closeModal()">Cancel</button>
       <button class="btn-submit" id="verifyBtn" onclick="handleVerify()">🤖 Verify Karo</button>
@@ -444,6 +446,16 @@
     } else {
       document.getElementById('planResult').innerHTML = `<p style="color:#ef4444">${data.error}</p>`;
     }
+  }
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('SW registered'))
+        .catch(err => console.log('SW error:', err))
+    })
   }
 </script>
 
